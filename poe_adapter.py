@@ -48,7 +48,7 @@ class PoeAdapter(BaseLLM):
             content = msg.get("content", "")
 
             # Map litellm roles to Poe ProtocolMessage roles
-            # fastapi_poe.types. gyorsan ProtocolMessageRole = Literal["system", "user", "bot"]
+            # fastapi_poe.types. ProtocolMessageRole = Literal["system", "user", "bot"]
             if role == "assistant":
                 poe_role = "bot"
             elif role == "user":
@@ -327,50 +327,3 @@ class PoeAdapter(BaseLLM):
         raise NotImplementedError("Poe adapter does not currently support embeddings.")
 
 # Removed global close_poe_adapter_session() as session is managed by fastapi-poe library internally per call.
-
-# Example usage (for testing, to be put in a separate main.py or similar)
-# async def main():
-#     # Ensure POE_API_KEY is set in environment or pass directly
-#     # adapter = PoeAdapter(api_key="YOUR_POE_API_KEY")
-#     # litellm.register_custom_provider("poe", adapter) # Register instance
-#
-#     # If you want litellm to instantiate it:
-#     # litellm.register_llm_provider("poe", PoeAdapter) # Register class
-#     # Then calls would need api_key passed in acompletion, or rely on env var POE_API_KEY
-#     # For this custom setup, registering an instance is fine.
-#
-#     # print("Testing PoeAdapter...")
-#     # try:
-#     #     response = await litellm.acompletion(
-#     #         model="poe/claude-instant", # Replace with a valid Poe model identifier
-#     #         messages=[{"role": "user", "content": "Hello, what is the capital of France?"}],
-#     #         api_key="YOUR_POE_API_KEY" # If class registered, or adapter instance already has it
-#     #     )
-#     #     print("\nNon-streaming response:")
-#     #     print(response)
-#     # except Exception as e:
-#     #     print(f"Error during non-streaming test: {e}")
-#
-#     # try:
-#     #     print("\nStreaming response:")
-#     #     streaming_response = await litellm.acompletion(
-#     #         model="poe/claude-instant", # Replace with a valid Poe model identifier
-#     #         messages=[{"role": "user", "content": "Tell me a short story about a robot."}],
-#     #         stream=True,
-#     #         api_key="YOUR_POE_API_KEY" # If needed
-#     #     )
-#     #     full_response_content = ""
-#     #     async for chunk in streaming_response:
-#     #         content = chunk.choices[0].delta.content or ""
-#     #         full_response_content += content
-#     #         print(content, end="", flush=True)
-#     #     print("\n--- End of stream ---")
-#     #     # print("Full streamed content:", full_response_content)
-#     # except Exception as e:
-#     #     print(f"Error during streaming test: {e}")
-#     # finally:
-#     #     await close_poe_adapter_session() # Clean up the session
-
-# if __name__ == "__main__":
-#    # asyncio.run(main())
-#    pass
