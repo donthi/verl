@@ -1,0 +1,56 @@
+# LiteLLM Configuration File
+
+# General settings (optional)
+# environment_variables: # Define environment variables that LiteLLM should load if not already set
+#   POE_API_KEY: "" # Not needed here if .env is used or key is set in shell
+
+# Custom LLM provider registration
+# This tells LiteLLM how to find and use your PoeAdapter class.
+custom_llm_providers:
+  - provider: poe # This is the identifier used in model_list's custom_llm_provider
+    module_name: "poe_adapter" # The Python file name (without .py)
+    class_name: "PoeAdapter"   # The class name within that file
+
+# Model list: Define the models that will be available through the LiteLLM server
+model_list:
+  - model_name: poe-claude-3-haiku # Name exposed by LiteLLM server (e.g., /chat/completions model="poe-claude-3-haiku")
+    litellm_params:
+      model: "poe/claude-3-haiku" # String passed to PoeAdapter; adapter extracts "claude-3-haiku" as bot_name for Poe API
+                                  # User must ensure "claude-3-haiku" is a valid bot_name for their Poe account.
+      custom_llm_provider: "poe"  # Links to the custom provider defined above
+      api_key: "os.environ/POE_API_KEY" # LiteLLM will fetch POE_API_KEY from environment
+      request_timeout: 120 # Optional: timeout in seconds for this specific model's calls to PoeAdapter
+
+  - model_name: poe-gpt3.5-turbo
+    litellm_params:
+      model: "poe/GPT-3.5-Turbo" # User must ensure "GPT-3.5-Turbo" is a valid bot_name on Poe
+      custom_llm_provider: "poe"
+      api_key: "os.environ/POE_API_KEY"
+      # request_timeout: 60 # Default from PoeAdapter (60.0s) will be used if not specified here
+
+  - model_name: poe-gemini-1.5-pro # Example from original prompt
+    litellm_params:
+      model: "poe/gemini-1.5-pro" # User must ensure "gemini-1.5-pro" is a valid bot_name on Poe
+      custom_llm_provider: "poe"
+      api_key: "os.environ/POE_API_KEY"
+
+# LiteLLM General Settings (optional, can also be set via environment variables)
+# server_settings:
+#   host: "0.0.0.0"
+#   port: 8000
+#   debug: True
+#   config_path: "litellm_config.yaml" # Path to this file, useful if LiteLLM is started without explicit path
+
+# You can add more settings like `drop_params` to remove unsupported parameters,
+# or `max_tokens` if you want to enforce a default max token limit at the server level for specific models.
+# Example:
+#  - model_name: poe-claude-3-haiku
+#    litellm_params: ...
+#    max_tokens: 2048 # Default max_tokens for this model if client doesn't specify
+#    drop_params: ["frequency_penalty", "presence_penalty"] # If PoeAdapter doesn't support these
+#
+# Note: The PoeAdapter currently passes through temperature, top_p, skip_system_prompt, logit_bias.
+# If other parameters are sent by clients that Poe doesn't support, they will be in `**kwargs`
+# and potentially ignored by `fastapi_poe.get_bot_response` if not in its signature.
+# Using `drop_params` in litellm_config can be cleaner for unsupported params.
+# For now, keeping it simple.
